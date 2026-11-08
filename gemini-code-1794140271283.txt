@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HGGSP - États-Unis & Environnement : Hub d'Apprentissage Actif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- HEADER & SYSTÈME DE PROGRESSION GLOBALE -->
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 shadow-md">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <span class="text-emerald-400 text-xs font-semibold tracking-wider uppercase bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-800">HGGSP Terminale - Objet Conclusif</span>
+                <h1 class="text-xl md:text-2xl font-bold mt-1 text-white">États-Unis & Environnement</h1>
+            </div>
+            
+            <!-- Widget de Progression (XP & Niveau) -->
+            <div class="bg-slate-900 border border-slate-700 px-4 py-2 rounded-xl flex items-center gap-4 shadow-inner">
+                <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span id="level-title" class="text-emerald-400">Niveau 1 : Explorateur de la Wilderness</span>
+                        <span id="xp-text" class="text-slate-400">0 / 100 XP</span>
+                    </div>
+                    <div class="w-36 bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div id="xp-bar" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="text-center pl-2 border-l border-slate-700">
+                    <span id="badge-count" class="text-lg font-bold text-amber-400">0/4</span>
+                    <p class="text-[10px] uppercase text-slate-400">Badges</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- NAVIGATION BLOC PAR BLOC -->
+        <nav class="max-w-6xl mx-auto flex flex-wrap gap-2 mt-4 pt-3 border-t border-slate-700/50">
+            <button onclick="switchTab('enigmes')" id="btn-enigmes" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition bg-emerald-600 text-white shadow">🧩 Énigmes Mystères</button>
+            <button onclick="switchTab('flashcards')" id="btn-flashcards" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition bg-slate-700 text-slate-300 hover:bg-slate-600">⚡ Flashcards</button>
+            <button onclick="switchTab('balancier')" id="btn-balancier" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition bg-slate-700 text-slate-300 hover:bg-slate-600">⏳ Frise du Balancier</button>
+            <button onclick="switchTab('acteurs')" id="btn-acteurs" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition bg-slate-700 text-slate-300 hover:bg-slate-600">🎭 Jeu des Acteurs</button>
+            <button onclick="switchTab('dissert')" id="btn-dissert" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition bg-slate-700 text-slate-300 hover:bg-slate-600">📝 Défi Dissertation</button>
+        </nav>
+    </header>
+
+    <!-- NOTIFICATION TOAST XP -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-3 z-50">
+        <span class="text-xl">✨</span>
+        <div>
+            <p class="font-bold text-sm" id="toast-title">Bien joué !</p>
+            <p class="text-xs text-emerald-100" id="toast-desc">+25 XP gagnés</p>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-grow max-w-4xl w-full mx-auto p-4 md:p-6 my-4">
+
+        <!-- BLOC 1 : LES ÉNIGMES MYSTÈRES (NOUVEAU) -->
+        <section id="section-enigmes" class="space-y-6">
+            <div class="text-center">
+                <h2 class="text-xl font-semibold text-emerald-300">Bloc 1 : Résous les Énigmes Historiques</h2>
+                <p class="text-slate-400 text-sm mt-1">Devine quel concept, lieu ou accord se cache derrière ces indices textuels.</p>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <span id="riddle-counter" class="text-xs uppercase font-bold text-emerald-400 bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-800">Énigme 1 / 4</span>
+                    <span class="text-xs text-slate-400">Indice progressif disponible</span>
+                </div>
+                
+                <div class="bg-slate-900 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <p class="text-xs text-emerald-400 font-semibold uppercase">Indices :</p>
+                    <p id="riddle-clue" class="text-base text-slate-200 italic leading-relaxed">"Je suis né en 1872 sous l'impulsion du président Grant, créant un précédent mondial pour sanctuariser la nature sans l'homme."</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold uppercase text-slate-400">Ta réponse :</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="riddle-input" placeholder="Ex: Yellowstone..." class="flex-grow bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <button onclick="checkRiddle()" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl font-semibold text-sm transition text-white shadow">Valider</button>
+                    </div>
+                </div>
+                <p id="riddle-feedback" class="text-sm font-medium text-center h-6"></p>
+            </div>
+        </section>
+
+        <!-- BLOC 2 : FLASHCARDS ACTIVES -->
+        <section id="section-flashcards" class="space-y-6 hidden">
+            <div class="text-center">
+                <h2 class="text-xl font-semibold text-emerald-300">Bloc 2 : Flashcards (Notions & Concepts)</h2>
+                <p class="text-slate-400 text-sm mt-1">Retourne la carte pour vérifier tes connaissances et engranger de l'XP.</p>
+            </div>
+
+            <div class="flex justify-center items-center py-4">
+                <div class="perspective-1000 w-full max-w-lg h-64 cursor-pointer" onclick="flipCard()">
+                    <div id="flashcard-inner" class="relative w-full h-full duration-500 transform-style-3d shadow-xl rounded-2xl">
+                        <div class="absolute inset-0 w-full h-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-8 flex flex-col justify-between backface-hidden">
+                            <span class="text-xs uppercase font-bold text-emerald-400 tracking-wider">Concept #<span id="card-index">1</span></span>
+                            <div class="text-center">
+                                <h3 id="card-front-text" class="text-2xl font-bold text-white">Wilderness</h3>
+                            </div>
+                            <p class="text-center text-xs text-slate-400 italic">Clique pour retourner</p>
+                        </div>
+                        <div class="absolute inset-0 w-full h-full bg-slate-800 border-2 border-emerald-600 rounded-2xl p-8 flex flex-col justify-between backface-hidden rotate-y-180">
+                            <span class="text-xs uppercase font-bold text-emerald-400 tracking-wider">Définition & Enjeu</span>
+                            <div class="overflow-y-auto">
+                                <p id="card-back-text" class="text-slate-200 text-sm leading-relaxed">Nature sauvage perçue comme vierge. Construction culturelle des colons (William Cronon), effaçant les Amérindiens chassés des parcs.</p>
+                            </div>
+                            <p class="text-center text-xs text-emerald-400">Clique pour la suivante (+10 XP)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4">
+                <button onclick="prevCard()" class="bg-slate-700 hover:bg-slate-600 px-5 py-2 rounded-lg font-medium text-sm transition">Précédente</button>
+                <button onclick="nextCard()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg font-medium text-sm transition text-white">Suivante</button>
+            </div>
+        </section>
+
+        <!-- BLOC 3 : FRISE DU BALANCIER -->
+        <section id="section-balancier" class="space-y-6 hidden">
+            <div class="text-center">
+                <h2 class="text-xl font-semibold text-emerald-300">Bloc 3 : La Frise du Balancier</h2>
+                <p class="text-slate-400 text-sm mt-1">Remets les événements dans l'ordre chronologique exact (1 à 7).</p>
+            </div>
+
+            <div id="timeline-game" class="space-y-3"></div>
+            <div class="text-center">
+                <button onclick="checkTimeline()" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2.5 rounded-lg font-semibold text-sm transition text-white shadow-lg">Vérifier l'ordre (+30 XP)</button>
+                <p id="timeline-result" class="mt-3 text-sm font-medium"></p>
+            </div>
+        </section>
+
+        <!-- BLOC 4 : JEU DES ACTEURS -->
+        <section id="section-acteurs" class="space-y-6 hidden">
+            <div class="text-center">
+                <h2 class="text-xl font-semibold text-emerald-300">Bloc 4 : Le Clash des Acteurs</h2>
+                <p class="text-slate-400 text-sm mt-1">Associe chaque action géopolitique à son acteur exact.</p>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-lg space-y-4">
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
+                    <span class="text-xs text-emerald-400 font-bold uppercase">Action / Événement :</span>
+                    <p id="actor-action-text" class="text-lg font-medium text-white mt-1">...</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="actor-choices"></div>
+                <p id="actor-feedback" class="text-sm font-medium text-center h-6"></p>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="nextActorChallenge()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm transition">Action suivante</button>
+            </div>
+        </section>
+
+        <!-- BLOC 5 : DÉFI DISSERTATION -->
+        <section id="section-dissert" class="space-y-6 hidden">
+            <div class="text-center">
+                <h2 class="text-xl font-semibold text-emerald-300">Bloc 5 : Entraînement Dissertation & Plans</h2>
+                <p class="text-slate-400 text-sm mt-1">Structure tes idées sur les grands sujets de l'objet conclusif.</p>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 space-y-4 shadow-lg">
+                <h3 class="text-lg font-bold text-white">Sujet : En quoi les États-Unis sont-ils un acteur à la fois incontournable et ambivalent de la gouvernance climatique ?</h3>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-emerald-400 mb-1">Ton plan (Parties I et II) :</label>
+                    <textarea id="user-plan" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 focus:outline-none focus:border-emerald-500" placeholder="Rédige tes grandes parties..."></textarea>
+                </div>
+                <button onclick="revealCorrection()" class="bg-emerald-600 hover:bg-emerald-500 px-5 py-2 rounded-lg text-sm font-semibold text-white transition">Voir la correction officielle (+20 XP)</button>
+                <div id="correction-box" class="hidden bg-slate-900 border border-emerald-800/60 rounded-lg p-4 space-y-2 text-sm text-slate-300">
+                    <h4 class="font-bold text-emerald-400">Piste de correction du cours :</h4>
+                    <p><strong>I. L'État fédéral, entre pionnier et puissance récalcitrante :</strong> Du rôle moteur à Stockholm et Montréal aux retraits (Kyoto, Trump et l'Accord de Paris en 2026).</p>
+                    <p><strong>II. L'autre visage : FTN, ONG et paradiplomatie infranationale :</strong> La U.S. Climate Alliance, la Californie et les contre-pouvoirs qui compensent l'absence de Washington.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER & BADGES MODAL INFO -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800 flex flex-col sm:flex-row justify-center items-center gap-2">
+        <span>HGGSP Terminale • Système de progression actif par blocs</span>
+        <button onclick="resetProgress()" class="text-rose-400 hover:underline ml-2">Réinitialiser la progression</button>
+    </footer>
+
+    <script>
+        // --- SYSTÈME DE PROGRESSION & XP ---
+        let userStats = JSON.parse(localStorage.getItem('hggsp_stats')) || {
+            xp: 0,
+            level: 1,
+            badges: { riddle: false, flash: false, time: false, actor: false }
+        };
+
+        const levels = [
+            { min: 0, title: "Niveau 1 : Explorateur de la Wilderness" },
+            { min: 100, title: "Niveau 2 : Conservateur Fédéral" },
+            { min: 250, title: "Niveau 3 : Expert du Balancier Climatique" },
+            { min: 500, title: "Niveau 4 : Maître HGGSP (Prêt pour le Bac)" }
+        ];
+
+        function addXP(amount, badgeKey = null, customTitle = "Action validée") {
+            userStats.xp += amount;
+            if (badgeKey && !userStats.badges[badgeKey]) {
+                userStats.badges[badgeKey] = true;
+                showToast("🏆 Badge Débloqué !", `Tu as remporté un nouveau trophée !`, 4000);
+            } else {
+                showToast(customTitle, `+${amount} XP gagnés !`);
+            }
+
+            // Calcul du niveau
+            let currentLevelObj = levels[0];
+            for (let i = 0; i < levels.length; i++) {
+                if (userStats.xp >= levels[i].min) {
+                    currentLevelObj = levels[i];
+                    userStats.level = i + 1;
+                }
+            }
+
+            localStorage.setItem('hggsp_stats', JSON.stringify(userStats));
+            updateUI();
+        }
+
+        function updateUI() {
+            const currentLevelObj = levels[userStats.level - 1];
+            const nextLevelMin = levels[userStats.level] ? levels[userStats.level].min : currentLevelObj.min + 300;
+            const currentLevelMin = currentLevelObj.min;
+            const progressPercent = Math.min(100, Math.max(0, ((userStats.xp - currentLevelMin) / (nextLevelMin - currentLevelMin)) * 100));
+
+            document.getElementById('level-title').innerText = currentLevelObj.title;
+            document.getElementById('xp-text').innerText = `${userStats.xp} / ${nextLevelMin} XP`;
+            document.getElementById('xp-bar').style.width = `${progressPercent}%`;
+
+            const unlockedBadgesCount = Object.values(userStats.badges).filter(Boolean).length;
+            document.getElementById('badge-count').innerText = `${unlockedBadgesCount}/4`;
+        }
+
+        function showToast(title, desc, duration = 3000) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-desc').innerText = desc;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, duration);
+        }
+
+        function resetProgress() {
+            if (confirm("Veux-tu vraiment réinitialiser toute ta progression ?")) {
+                localStorage.removeItem('hggsp_stats');
+                location.reload();
+            }
+        }
+
+        // --- NAVIGATION TABS ---
+        function switchTab(tabId) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white', 'shadow');
+                btn.classList.add('bg-slate-700', 'text-slate-300');
+            });
+            document.getElementById(`section-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.remove('bg-slate-700', 'text-slate-300');
+            activeBtn.classList.add('bg-emerald-600', 'text-white', 'shadow');
+        }
+
+        // --- BLOC 1 : ÉNIGMES ---
+        const riddlesData = [
+            { clue: "Je suis né en 1872 sous l'impulsion du président Grant, créant un précédent mondial pour sanctuariser la nature sans l'homme.", answer: "yellowstone" },
+            { clue: "Je suis un accord international signé en 1987 sous Reagan pour protéger la couche d'ozone, considéré comme le plus efficace de l'histoire.", answer: "montreal" },
+            { clue: "Je suis le concept géopolitique mené par la Californie et des coalitions d'États pour appliquer l'accord climatique malgré l'absence de Washington.", answer: "paradiplomatie" },
+            { clue: "Je suis la révolution technologique de fracturation hydraulique (2009) qui a propulsé les USA au rang de superpuissance fossile.", answer: "schiste" }
+        ];
+        let currentRiddle = 0;
+
+        function checkRiddle() {
+            const userAns = document.getElementById('riddle-input').value.trim().toLowerCase();
+            const feedback = document.getElementById('riddle-feedback');
+            if (userAns.includes(riddlesData[currentRiddle].answer)) {
+                feedback.className = "text-sm font-medium text-emerald-400 h-6";
+                feedback.innerText = "Bravo ! Bonne réponse.";
+                addXP(25, currentRiddle === riddlesData.length - 1 ? 'riddle' : null, "Énigme résolue !");
+                setTimeout(() => {
+                    currentRiddle = (currentRiddle + 1) % riddlesData.length;
+                    document.getElementById('riddle-counter').innerText = `Énigme ${currentRiddle + 1} / 4`;
+                    document.getElementById('riddle-clue').innerText = `"${riddlesData[currentRiddle].clue}"`;
+                    document.getElementById('riddle-input').value = "";
+                    feedback.innerText = "";
+                }, 1500);
+            } else {
+                feedback.className = "text-sm font-medium text-rose-400 h-6";
+                feedback.innerText = "Ce n'est pas tout à fait ça, réessaie !";
+            }
+        }
+
+        // --- BLOC 2 : FLASHCARDS ---
+        const flashcardsData = [
+            { front: "Wilderness", back: "Espace sauvage perçu comme vierge, sacralisé par l'art (Bierstadt) et institutionnalisé par le Wilderness Act (1964). Revers : expulsion violente des Amérindiens." },
+            { front: "Préservation vs Conservation", back: "Préservation (John Muir) : sanctuariser pour elle-même. Conservation (Roosevelt/Pinchot) : gérer rationnellement les ressources pour la puissance." },
+            { front: "Le Balancier Fédéral", back: "Alternance politique : les démocrates signent (Rio, Paris, Biden), les républicains se retirent (Kyoto, Trump et sortie en janv. 2026)." },
+            { front: "La Révolution du Schiste", back: "Fracturation hydraulique (2009) propulsant les USA au rang de superpuissance fossile (13,6 millions de barils/jour en 2025)." }
+        ];
+        let currentCard = 0;
+        let isFlipped = false;
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            document.getElementById('flashcard-inner').style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
+            if (isFlipped) addXP(5, 'flash', "Flashcard consultée");
+        }
+        function updateCard() {
+            isFlipped = false;
+            document.getElementById('flashcard-inner').style.transform = 'rotateY(0deg)';
+            document.getElementById('card-index').innerText = currentCard + 1;
+            document.getElementById('card-front-text').innerText = flashcardsData[currentCard].front;
+            document.getElementById('card-back-text').innerText = flashcardsData[currentCard].back;
+        }
+        function nextCard() { currentCard = (currentCard + 1) % flashcardsData.length; updateCard(); }
+        function prevCard() { currentCard = (currentCard - 1 + flashcardsData.length) % flashcardsData.length; updateCard(); }
+
+        // --- BLOC 3 : FRISE DU BALANCIER ---
+        const timelineEvents = [
+            { year: 1872, text: "Création de Yellowstone, premier parc national au monde." },
+            { year: 1903, text: "Theodore Roosevelt et John Muir campent à Yosemite." },
+            { year: 1964, text: "Vote du Wilderness Act par le Congrès." },
+            { year: 1970, text: "Premier Earth Day et création de l'EPA par Nixon." },
+            { year: 1987, text: "Protocole de Montréal (protection de la couche d'ozone)." },
+            { year: 2015, text: "Signature de l'Accord de Paris sur le climat (Obama)." },
+            { year: 2026, text: "Sortie effective de l'Accord de Paris et retrait de la CCNUCC." }
+        ];
+        let shuffledEvents = [];
+
+        function initTimeline() {
+            shuffledEvents = [...timelineEvents].sort(() => Math.random() - 0.5);
+            const container = document.getElementById('timeline-game');
+            container.innerHTML = '';
+            shuffledEvents.forEach((ev, idx) => {
+                container.innerHTML += `
+                    <div class="flex items-center gap-3 bg-slate-800 border border-slate-700 p-3 rounded-lg">
+                        <select id="pos-${idx}" class="bg-slate-900 border border-slate-600 rounded p-1 text-sm text-white font-bold">
+                            ${timelineEvents.map((_, i) => `<option value="${i+1}">#${i+1}</option>`).join('')}
+                        </select>
+                        <span class="text-sm text-slate-200">${ev.text}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function checkTimeline() {
+            let correct = true;
+            shuffledEvents.forEach((ev, idx) => {
+                const selectedPos = parseInt(document.getElementById(`pos-${idx}`).value) - 1;
+                const sortedByYear = [...timelineEvents].sort((a,b) => a.year - b.year);
+                if (sortedByYear[selectedPos].year !== ev.year) correct = false;
+            });
+            const res = document.getElementById('timeline-result');
+            if (correct) {
+                res.className = "mt-3 text-sm font-medium text-emerald-400";
+                res.innerText = "Parfait ! Chronologie validée.";
+                addXP(30, 'time', "Frise chronologique validée !");
+            } else {
+                res.className = "mt-3 text-sm font-medium text-rose-400";
+                res.innerText = "Il y a des erreurs dans l'ordre. Réessaie !";
+            }
+        }
+
+        // --- BLOC 4 : JEU DES ACTEURS ---
+        const actorChallenges = [
+            { action: "Sortie effective de l'Accord de Paris le 27 janvier 2026 et retrait de la CCNUCC.", answer: "État fédéral (Trump II)", options: ["État fédéral (Trump II)", "U.S. Climate Alliance", "Firmes Transnationale (Exxon)", "ONG Greenpeace"] },
+            { action: "Maintien de l'engagement climatique international via la U.S. Climate Alliance.", answer: "Paradiplomatie (États, Villes)", options: ["Le Congrès (Sénat)", "Paradiplomatie (États, Villes)", "ExxonMobil", "La Cour Suprême"] },
+            { action: "Financement historique du climatoscepticisme (Global Climate Coalition) dès les années 1990.", answer: "Firmes Transnationales", options: ["État fédéral", "ONG Greenpeace", "Firmes Transnationales", "Nations Amérindiennes"] }
+        ];
+        let currentActorIdx = 0;
+
+        function loadActorChallenge() {
+            const current = actorChallenges[currentActorIdx];
+            document.getElementById('actor-action-text').innerText = current.action;
+            document.getElementById('actor-feedback').innerText = "";
+            const choicesContainer = document.getElementById('actor-choices');
+            choicesContainer.innerHTML = '';
+            
+            const shuffledOpts = [...current.options].sort(() => Math.random() - 0.5);
+            shuffledOpts.forEach(opt => {
+                choicesContainer.innerHTML += `
+                    <button onclick="checkActorChoice('${opt.replace(/'/g, "\\'")}', '${current.answer.replace(/'/g, "\\'")}')" class="bg-slate-900 hover:bg-slate-700 border border-slate-700 p-3 rounded-lg text-sm text-slate-200 transition text-left font-medium">${opt}</button>
+                `;
+            });
+        }
+
+        function checkActorChoice(selected, correct) {
+            const feedback = document.getElementById('actor-feedback');
+            if (selected === correct) {
+                feedback.className = "text-sm font-medium text-emerald-400 h-6";
+                feedback.innerText = "Exact ! Bonne association.";
+                addXP(15, currentActorIdx === actorChallenges.length - 1 ? 'actor' : null, "Défi Acteurs réussi !");
+            } else {
+                feedback.className = "text-sm font-medium text-rose-400 h-6";
+                feedback.innerText = `Incorrect. C'était : ${correct}`;
+            }
+        }
+
+        function nextActorChallenge() {
+            currentActorIdx = (currentActorIdx + 1) % actorChallenges.length;
+            loadActorChallenge();
+        }
+
+        // --- BLOC 5 : DISSERTATION ---
+        function revealCorrection() {
+            document.getElementById('correction-box').classList.remove('hidden');
+            addXP(20, null, "Correction consultée");
+        }
+
+        // Init au chargement
+        window.onload = () => {
+            initTimeline();
+            loadActorChallenge();
+            updateUI();
+        };
+    </script>
+</body>
+</html>
